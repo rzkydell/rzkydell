@@ -14,7 +14,7 @@ name: Profile stats
 
 on:
   schedule:
-    - cron: "17 17 * * *" # daily, 00:17 WIB
+    - cron: "37 * * * *" # hourly, so new commits show up in the snake and calendar within an hour
   workflow_dispatch:
   push:
     branches: [main]
