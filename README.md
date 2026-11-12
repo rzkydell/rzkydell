@@ -81,14 +81,17 @@ More experiments, including a Flutter fertiliser calculator, a Java field-superv
 </picture>
 
 <p>
-  <img alt="Contribution calendar" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/calendar.svg" width="49%">
-  <img alt="Most used languages" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/languages.svg" width="49%">
-</p>
-<p>
-  <img alt="Coding habits over the last 30 days" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/habits.svg" width="49%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/calendar-dark.svg">
+    <img alt="Contribution calendar for the last year" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/calendar.svg" width="49%">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/languages-dark.svg">
+    <img alt="Languages across my public repositories" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/languages.svg" width="49%">
+  </picture>
 </p>
 
-<sub>Generated daily in this repository by GitHub Actions with <a href="https://github.com/lowlighter/metrics">lowlighter/metrics</a> and <a href="https://github.com/Platane/snk">Platane/snk</a>. Stack icons from <a href="https://github.com/tandpfun/skill-icons">skill-icons</a> (MIT).</sub>
+<sub>Generated daily in this repository by GitHub Actions: <a href="https://github.com/Platane/snk">Platane/snk</a>, <a href="https://github.com/lowlighter/metrics">lowlighter/metrics</a> and a small <a href="scripts/languages-card.mjs">languages script</a>. Most of my day-to-day work lives in private company repositories. Stack icons from <a href="https://github.com/tandpfun/skill-icons">skill-icons</a> (MIT).</sub>
 
 ---
 

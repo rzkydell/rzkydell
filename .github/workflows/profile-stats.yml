@@ -1,12 +1,14 @@
 # Builds the GitHub activity images shown in README.md and publishes them to the
 # `output` branch (a single commit, force-pushed), so `main` stays free of bot commits.
 #
-#   snake.svg / snake-dark.svg   Platane/snk      contribution-graph snake (light / dark)
-#   metrics/*.svg                lowlighter/metrics  calendar, languages, coding habits
+#   snake.svg, snake-dark.svg                Platane/snk          contribution-graph snake
+#   metrics/calendar.svg, calendar-dark.svg  lowlighter/metrics   isometric contribution calendar
+#   metrics/languages.svg, languages-dark.svg  scripts/languages-card.mjs (public repos, REST API)
 #
-# Token: uses the built-in GITHUB_TOKEN. For richer metrics (incl. private contributions),
-# add a classic personal access token as the repository secret METRICS_TOKEN; it is
-# picked up automatically. Fine-grained tokens are not supported by lowlighter/metrics.
+# Everything runs on the built-in GITHUB_TOKEN. Optionally, a classic personal access token
+# stored as the repository secret METRICS_TOKEN is used by lowlighter/metrics instead.
+# Private contributions appear in the calendar and snake once "Include private contributions
+# on my profile" is enabled in the GitHub profile settings.
 
 name: Profile stats
 
@@ -18,6 +20,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/profile-stats.yml
+      - scripts/**
 
 permissions:
   contents: write
@@ -31,11 +34,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v5
+
       # Keep the previous images, so one failed generator never leaves a broken image.
       - name: Restore previous images
         run: |
-          git clone --quiet --depth 1 --branch output "https://github.com/${GITHUB_REPOSITORY}.git" dist || mkdir -p dist
-          rm -rf dist/.git
+          mkdir -p dist/metrics
+          if git clone --quiet --depth 1 --branch output "https://github.com/${GITHUB_REPOSITORY}.git" previous; then
+            for f in snake.svg snake-dark.svg metrics/calendar.svg metrics/calendar-dark.svg metrics/languages.svg metrics/languages-dark.svg; do
+              if [ -f "previous/$f" ]; then cp "previous/$f" "dist/$f"; fi
+            done
+            rm -rf previous
+          fi
 
       - name: Contribution snake
         uses: Platane/snk/svg-only@v3
@@ -45,9 +55,9 @@ jobs:
             dist/snake.svg?color_snake=#3d6a0c&color_dots=#ebedf0,#d7ec9f,#b2d65c,#78a62a,#3d6a0c
             dist/snake-dark.svg?palette=github-dark&color_snake=#c6ef4e&color_dots=#161b22,#2b3a12,#4d6b17,#86b52a,#c6ef4e
 
-      # No `id:` on the metrics steps: lowlighter/metrics reads the step id to decide whether it is the
-      # official action, and a custom id makes it rebuild its Docker image instead of pulling it.
-      - name: Metrics - contribution calendar
+      # No `id:` here: lowlighter/metrics reads the step id to tell whether it is the official
+      # action, and a custom id makes it rebuild its Docker image instead of pulling it.
+      - name: Contribution calendar
         continue-on-error: true
         uses: lowlighter/metrics@v3.34
         with:
@@ -60,55 +70,28 @@ jobs:
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
 
-      - name: Metrics - languages
-        continue-on-error: true
-        uses: lowlighter/metrics@v3.34
-        with:
-          token: ${{ secrets.METRICS_TOKEN || github.token }}
-          user: ${{ github.repository_owner }}
-          filename: languages.svg
-          output_action: none
-          base: ""
-          config_timezone: Asia/Jakarta
-          plugin_languages: yes
-          plugin_languages_limit: 8
-          plugin_languages_threshold: 1%
-          plugin_languages_details: bytes-size, percentage
-          plugin_languages_ignored: html, css, makefile, dockerfile, shell, c++, cmake, swift, kotlin, objective-c, blade, jupyter notebook
-
-      - name: Metrics - coding habits
-        continue-on-error: true
-        uses: lowlighter/metrics@v3.34
-        with:
-          token: ${{ secrets.METRICS_TOKEN || github.token }}
-          user: ${{ github.repository_owner }}
-          filename: habits.svg
-          output_action: none
-          base: ""
-          config_timezone: Asia/Jakarta
-          plugin_habits: yes
-          plugin_habits_facts: yes
-          plugin_habits_charts: yes
-          plugin_habits_days: 30
-          plugin_habits_from: 200
-
-      - name: Collect metrics images
+      # Recolour GitHub's green scale to the portfolio's lime scale, plus a dark-mode copy.
+      - name: Calendar colours (light and dark)
         run: |
-          mkdir -p dist/metrics
-          for f in calendar languages habits; do
-            if [ -s "/metrics_renders/$f.svg" ]; then
-              sudo cp "/metrics_renders/$f.svg" dist/metrics/
-            else
-              echo "::warning::metrics/$f.svg was not refreshed in this run; the previous image is kept."
-            fi
-          done
-          sudo chown -R "$(id -u):$(id -g)" dist
-          ls -la dist dist/metrics
+          if [ -s /metrics_renders/calendar.svg ]; then
+            sed -e 's/#9be9a8/#d7ec9f/gI' -e 's/#40c463/#b2d65c/gI' -e 's/#30a14e/#78a62a/gI' -e 's/#216e39/#3d6a0c/gI' \
+              /metrics_renders/calendar.svg > dist/metrics/calendar.svg
+            sed -e 's/#ebedf0/#161b22/gI' -e 's/#d7ec9f/#2b3a12/gI' -e 's/#b2d65c/#4d6b17/gI' -e 's/#78a62a/#86b52a/gI' -e 's/#3d6a0c/#c6ef4e/gI' \
+              dist/metrics/calendar.svg > dist/metrics/calendar-dark.svg
+          else
+            echo "::warning::The contribution calendar was not refreshed in this run; the previous image is kept."
+          fi
+
+      - name: Languages card
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/languages-card.mjs "${{ github.repository_owner }}" dist/metrics || echo "::warning::The languages card was not refreshed in this run; the previous image is kept."
 
       - name: Publish to the output branch
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          ls -la dist dist/metrics
           cd dist
           git init --quiet --initial-branch=output
           git add --all
