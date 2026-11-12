@@ -1,6 +1,8 @@
 // Builds the public activity data used by the portfolio (rzkydell.vercel.app):
 //   aktivitas-commit.json  commits per project in the last 30 days / this year (the "orbit" graphic)
 //   github-profil.json     public profile numbers, top languages and the GitHub contribution calendar
+//   banner-dark.svg,       the profile README banner with a live commit-activity orbit
+//   banner-light.svg       (see activity-banner.mjs)
 //
 // Commits are counted straight from the REST API on each repository's default branch, so private
 // company repositories count as soon as they are pushed. Only dates and counts are read; commit
@@ -20,6 +22,7 @@
 // usage: node scripts/activity-data.mjs <outDir>
 import fs from "node:fs";
 import path from "node:path";
+import { buildBanner } from "./activity-banner.mjs";
 
 const outDir = process.argv[2] || "dist";
 const token = process.env.GH_STATS_TOKEN;
@@ -63,6 +66,21 @@ const KNOWN = {
   portofolio: { jenis: "pribadi", nama: n("Portofolio ini", "This portfolio"), singkat: n("Portofolio", "Portfolio") },
   profil: { jenis: "pribadi", nama: n("Profil GitHub", "GitHub profile"), singkat: n("Profil GitHub", "GitHub profile") },
   ...map.tampil,
+};
+// Short English labels for the banner orbit (REPO_MAP "tampil".<id>.banner overrides).
+const BANNER_LABELS = {
+  iam: "IAM",
+  onesei: "OneSei SSO",
+  aduan: "Helpdesk",
+  mke: "MKE",
+  sekper: "Secretariat",
+  eoffice: "E-Office",
+  ekspedisi: "Dispatch",
+  uat: "UAT",
+  website: "Web & CMS",
+  survei: "Survey",
+  portofolio: "Portfolio",
+  profil: "Profile",
 };
 const REPOS = Object.fromEntries(Object.entries(map.repos || {}).map(([k, v]) => [k.toLowerCase(), v]));
 const EMAILS = new Set((map.emails || []).map((e) => e.toLowerCase()));
@@ -293,8 +311,30 @@ function write(file, data) {
 }
 const a = write("aktivitas-commit.json", activity);
 const p = write("github-profil.json", profile);
+
+// ---------------------------------------------------------------- live profile banner (dark + light)
+const bannerProjects = all
+  .filter((x) => x.jumlah30 > 0)
+  .map((x) => ({
+    label: map.tampil?.[x.id]?.banner ?? BANNER_LABELS[x.id] ?? short(x.singkat.en, 11),
+    jumlah30: x.jumlah30,
+    terakhir: x.terakhir,
+  }));
+const banners = ["dark", "light"].map((theme) => {
+  const target = path.join(outDir, `banner-${theme}.svg`);
+  const svg = buildBanner(theme, bannerProjects, activity.ringkasan, now);
+  let old = null;
+  try {
+    old = fs.readFileSync(target, "utf8");
+  } catch {}
+  if (old === svg) return false;
+  fs.writeFileSync(target, svg);
+  return true;
+});
+
 console.log(
   `aktivitas-commit.json ${a ? "updated" : "unchanged"}: ${activity.proyek.length} nodes, ` +
     `${activity.ringkasan.jumlah30} commits in 30 days, ${activity.ringkasan.tahunIni} this year; ` +
-    `github-profil.json ${p ? "updated" : "unchanged"}: ${profile.kalender.total} contributions in ${CALENDAR_WEEKS} weeks.`,
+    `github-profil.json ${p ? "updated" : "unchanged"}: ${profile.kalender.total} contributions in ${CALENDAR_WEEKS} weeks; ` +
+    `banners ${banners.some(Boolean) ? "updated" : "unchanged"}.`,
 );

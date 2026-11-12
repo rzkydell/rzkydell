@@ -4,6 +4,7 @@
 #
 #   aktivitas-commit.json  commits per project (last 30 days / this year), from the REST API
 #   github-profil.json     profile numbers, top languages, GitHub contribution calendar (GraphQL)
+#   banner-dark.svg, banner-light.svg   README banner with a live commit-activity orbit
 #
 # Secrets (Settings → Secrets and variables → Actions):
 #   GH_STATS_TOKEN  classic token of the profile owner, scopes `repo` + `read:user` (required)
@@ -21,6 +22,10 @@ on:
     branches: [main]
     paths:
       - scripts/activity-data.mjs
+      - scripts/activity-banner.mjs
+      - assets/banner-dark.svg
+      - assets/banner-light.svg
+      - assets/fonts/**
       - .github/workflows/activity-data.yml
 
 permissions:
@@ -56,7 +61,7 @@ jobs:
         run: |
           mkdir -p dist
           if git clone --quiet --depth 1 --branch data "https://github.com/${GITHUB_REPOSITORY}.git" previous; then
-            cp previous/aktivitas-commit.json previous/github-profil.json dist/ 2>/dev/null || true
+            cp previous/*.json previous/*.svg dist/ 2>/dev/null || true
           fi
 
       - name: Build data
@@ -70,13 +75,15 @@ jobs:
         run: |
           if [ -d previous ] \
             && cmp -s dist/aktivitas-commit.json previous/aktivitas-commit.json \
-            && cmp -s dist/github-profil.json previous/github-profil.json; then
+            && cmp -s dist/github-profil.json previous/github-profil.json \
+            && cmp -s dist/banner-dark.svg previous/banner-dark.svg \
+            && cmp -s dist/banner-light.svg previous/banner-light.svg; then
             echo "Data unchanged; nothing to publish."
             exit 0
           fi
           cd dist
           git init --quiet --initial-branch=data
-          git add aktivitas-commit.json github-profil.json
+          git add aktivitas-commit.json github-profil.json banner-dark.svg banner-light.svg
           git -c user.name="github-actions[bot]" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
               commit --quiet -m "Update activity data"
