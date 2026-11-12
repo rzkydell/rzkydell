@@ -83,11 +83,11 @@ More experiments, including a Flutter fertiliser calculator, a Java field-superv
 <p>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/calendar-dark.svg">
-    <img alt="Contribution calendar for the last year" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/calendar.svg" width="49%">
+    <img alt="Contribution calendar for the last year" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/calendar.svg" width="49%" align="top">
   </picture>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/languages-dark.svg">
-    <img alt="Languages across my public repositories" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/languages.svg" width="49%">
+    <img alt="Languages across my public repositories" src="https://raw.githubusercontent.com/rzkydell/rzkydell/output/metrics/languages.svg" width="49%" align="top">
   </picture>
 </p>
 

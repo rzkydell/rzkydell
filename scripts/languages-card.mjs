@@ -73,15 +73,12 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 .s{font-size:12px;fill:${t.muted}}
 .n{font-size:13px;fill:${t.fg}}
 .p{font-size:12px;fill:${t.muted};font-variant-numeric:tabular-nums}
-.grow{transform-origin:${X}px ${BAR_Y}px;animation:grow 1.2s cubic-bezier(.16,1,.3,1) both}
-@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media (prefers-reduced-motion: reduce){.grow{animation:none}}
 </style>
 <text x="${X}" y="32" class="h">Languages</text>
 <text x="${X}" y="52" class="s">Across ${counted} public repositories, each weighted equally</text>
 <clipPath id="bar"><rect x="${X}" y="${BAR_Y}" width="${BAR_W}" height="10" rx="5"/></clipPath>
 <rect x="${X}" y="${BAR_Y}" width="${BAR_W}" height="10" rx="5" fill="${t.track}"/>
-<g clip-path="url(#bar)"><g class="grow">${segs}</g></g>
+<g clip-path="url(#bar)">${segs}</g>
 ${legend}
 </svg>
 `;
