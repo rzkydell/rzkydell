@@ -1,0 +1,120 @@
+# Builds the GitHub activity images shown in README.md and publishes them to the
+# `output` branch (a single commit, force-pushed), so `main` stays free of bot commits.
+#
+#   snake.svg / snake-dark.svg   Platane/snk      contribution-graph snake (light / dark)
+#   metrics/*.svg                lowlighter/metrics  calendar, languages, coding habits
+#
+# Token: uses the built-in GITHUB_TOKEN. For richer metrics (incl. private contributions),
+# add a classic personal access token as the repository secret METRICS_TOKEN; it is
+# picked up automatically. Fine-grained tokens are not supported by lowlighter/metrics.
+
+name: Profile stats
+
+on:
+  schedule:
+    - cron: "17 17 * * *" # daily, 00:17 WIB
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/profile-stats.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-stats
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # Keep the previous images, so one failed generator never leaves a broken image.
+      - name: Restore previous images
+        run: |
+          git clone --quiet --depth 1 --branch output "https://github.com/${GITHUB_REPOSITORY}.git" dist || mkdir -p dist
+          rm -rf dist/.git
+
+      - name: Contribution snake
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/snake.svg?color_snake=#3d6a0c&color_dots=#ebedf0,#d7ec9f,#b2d65c,#78a62a,#3d6a0c
+            dist/snake-dark.svg?palette=github-dark&color_snake=#c6ef4e&color_dots=#161b22,#2b3a12,#4d6b17,#86b52a,#c6ef4e
+
+      - name: Metrics - contribution calendar
+        id: calendar
+        continue-on-error: true
+        uses: lowlighter/metrics@v3.34
+        with:
+          token: ${{ secrets.METRICS_TOKEN || github.token }}
+          user: ${{ github.repository_owner }}
+          filename: calendar.svg
+          output_action: none
+          base: ""
+          config_timezone: Asia/Jakarta
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
+
+      - name: Metrics - languages
+        id: languages
+        continue-on-error: true
+        uses: lowlighter/metrics@v3.34
+        with:
+          token: ${{ secrets.METRICS_TOKEN || github.token }}
+          user: ${{ github.repository_owner }}
+          filename: languages.svg
+          output_action: none
+          base: ""
+          config_timezone: Asia/Jakarta
+          plugin_languages: yes
+          plugin_languages_limit: 8
+          plugin_languages_threshold: 1%
+          plugin_languages_details: bytes-size, percentage
+          plugin_languages_ignored: html, css, makefile, dockerfile, shell, c++, cmake, swift, kotlin, objective-c, blade, jupyter notebook
+
+      - name: Metrics - coding habits
+        id: habits
+        continue-on-error: true
+        uses: lowlighter/metrics@v3.34
+        with:
+          token: ${{ secrets.METRICS_TOKEN || github.token }}
+          user: ${{ github.repository_owner }}
+          filename: habits.svg
+          output_action: none
+          base: ""
+          config_timezone: Asia/Jakarta
+          plugin_habits: yes
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
+          plugin_habits_days: 30
+          plugin_habits_from: 200
+
+      - name: Collect metrics images
+        run: |
+          mkdir -p dist/metrics
+          if [ -d /metrics_renders ]; then
+            sudo find /metrics_renders -maxdepth 1 -name '*.svg' -exec cp {} dist/metrics/ \;
+            sudo chown -R "$(id -u):$(id -g)" dist
+          fi
+          ls -la dist dist/metrics
+
+      - name: Publish to the output branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd dist
+          git init --quiet --initial-branch=output
+          git add --all
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit --quiet -m "Update profile stats"
+          git push --quiet --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" output
+
+      - name: Report skipped metrics
+        if: steps.calendar.outcome == 'failure' || steps.languages.outcome == 'failure' || steps.habits.outcome == 'failure'
+        run: |
+          echo "::warning::Some metrics images could not be refreshed (calendar=${{ steps.calendar.outcome }}, languages=${{ steps.languages.outcome }}, habits=${{ steps.habits.outcome }}). The previous images were kept."
