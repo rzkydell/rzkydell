@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://rzkydell.vercel.app"><img alt="Portfolio" src="https://img.shields.io/badge/Portfolio-rzkydell.vercel.app-c6ef4e?style=flat-square&labelColor=11130f"></a>
-  <a href="https://www.linkedin.com/in/rizkydelianggi7890/"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-Rizky%20Delianngi-0a66c2?style=flat-square&logo=linkedin&logoColor=white&labelColor=11130f"></a>
+  <a href="https://www.linkedin.com/in/rizkydelianngi/"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-Rizky%20Delianngi-0a66c2?style=flat-square&logo=linkedin&logoColor=white&labelColor=11130f"></a>
   <a href="mailto:rizkydelianngi@gmail.com"><img alt="Email" src="https://img.shields.io/badge/Email-rizkydelianngi%40gmail.com-ea4335?style=flat-square&logo=gmail&logoColor=white&labelColor=11130f"></a>
 </p>
 
