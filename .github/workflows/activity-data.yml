@@ -1,0 +1,83 @@
+# Builds the activity data used by the portfolio (rzkydell.vercel.app) and publishes it to the `data`
+# branch as a single commit (force-pushed), so neither `main` nor the `output` branch of the profile
+# stats workflow is touched, and no contribution is added to the profile graph.
+#
+#   aktivitas-commit.json  commits per project (last 30 days / this year), from the REST API
+#   github-profil.json     profile numbers, top languages, GitHub contribution calendar (GraphQL)
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   GH_STATS_TOKEN  classic token of the profile owner, scopes `repo` + `read:user` (required)
+#   REPO_MAP        JSON mapping of private repositories to public display names (see the script)
+# Without GH_STATS_TOKEN the workflow finishes without changing anything.
+# Logs of this public repository never print repository names; the script only prints totals.
+
+name: Activity data
+
+on:
+  schedule:
+    - cron: "7 * * * *" # hourly
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/activity-data.mjs
+      - .github/workflows/activity-data.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: activity-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_STATS_TOKEN: ${{ secrets.GH_STATS_TOKEN }}
+      REPO_MAP: ${{ secrets.REPO_MAP }}
+    steps:
+      - name: Token missing
+        if: env.GH_STATS_TOKEN == ''
+        run: echo "::notice::GH_STATS_TOKEN is not set; activity data was not refreshed."
+
+      - uses: actions/checkout@v5
+        if: env.GH_STATS_TOKEN != ''
+
+      - uses: actions/setup-node@v5
+        if: env.GH_STATS_TOKEN != ''
+        with:
+          node-version: 22
+
+      # Start from the published files, so an unchanged result keeps its timestamp and is not re-pushed.
+      - name: Previous data
+        if: env.GH_STATS_TOKEN != ''
+        run: |
+          mkdir -p dist
+          if git clone --quiet --depth 1 --branch data "https://github.com/${GITHUB_REPOSITORY}.git" previous; then
+            cp previous/aktivitas-commit.json previous/github-profil.json dist/ 2>/dev/null || true
+          fi
+
+      - name: Build data
+        if: env.GH_STATS_TOKEN != ''
+        run: node scripts/activity-data.mjs dist
+
+      - name: Publish to the data branch
+        if: env.GH_STATS_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -d previous ] \
+            && cmp -s dist/aktivitas-commit.json previous/aktivitas-commit.json \
+            && cmp -s dist/github-profil.json previous/github-profil.json; then
+            echo "Data unchanged; nothing to publish."
+            exit 0
+          fi
+          cd dist
+          git init --quiet --initial-branch=data
+          git add aktivitas-commit.json github-profil.json
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit --quiet -m "Update activity data"
+          git push --quiet --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
