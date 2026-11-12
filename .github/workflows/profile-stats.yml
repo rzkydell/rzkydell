@@ -45,8 +45,9 @@ jobs:
             dist/snake.svg?color_snake=#3d6a0c&color_dots=#ebedf0,#d7ec9f,#b2d65c,#78a62a,#3d6a0c
             dist/snake-dark.svg?palette=github-dark&color_snake=#c6ef4e&color_dots=#161b22,#2b3a12,#4d6b17,#86b52a,#c6ef4e
 
+      # No `id:` on the metrics steps: lowlighter/metrics reads the step id to decide whether it is the
+      # official action, and a custom id makes it rebuild its Docker image instead of pulling it.
       - name: Metrics - contribution calendar
-        id: calendar
         continue-on-error: true
         uses: lowlighter/metrics@v3.34
         with:
@@ -60,7 +61,6 @@ jobs:
           plugin_isocalendar_duration: full-year
 
       - name: Metrics - languages
-        id: languages
         continue-on-error: true
         uses: lowlighter/metrics@v3.34
         with:
@@ -77,7 +77,6 @@ jobs:
           plugin_languages_ignored: html, css, makefile, dockerfile, shell, c++, cmake, swift, kotlin, objective-c, blade, jupyter notebook
 
       - name: Metrics - coding habits
-        id: habits
         continue-on-error: true
         uses: lowlighter/metrics@v3.34
         with:
@@ -96,10 +95,14 @@ jobs:
       - name: Collect metrics images
         run: |
           mkdir -p dist/metrics
-          if [ -d /metrics_renders ]; then
-            sudo find /metrics_renders -maxdepth 1 -name '*.svg' -exec cp {} dist/metrics/ \;
-            sudo chown -R "$(id -u):$(id -g)" dist
-          fi
+          for f in calendar languages habits; do
+            if [ -s "/metrics_renders/$f.svg" ]; then
+              sudo cp "/metrics_renders/$f.svg" dist/metrics/
+            else
+              echo "::warning::metrics/$f.svg was not refreshed in this run; the previous image is kept."
+            fi
+          done
+          sudo chown -R "$(id -u):$(id -g)" dist
           ls -la dist dist/metrics
 
       - name: Publish to the output branch
@@ -113,8 +116,3 @@ jobs:
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
               commit --quiet -m "Update profile stats"
           git push --quiet --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" output
-
-      - name: Report skipped metrics
-        if: steps.calendar.outcome == 'failure' || steps.languages.outcome == 'failure' || steps.habits.outcome == 'failure'
-        run: |
-          echo "::warning::Some metrics images could not be refreshed (calendar=${{ steps.calendar.outcome }}, languages=${{ steps.languages.outcome }}, habits=${{ steps.habits.outcome }}). The previous images were kept."
