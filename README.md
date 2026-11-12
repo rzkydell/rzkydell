@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/main/assets/banner-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/main/assets/banner-light.svg">
-  <img alt="Rizky Delianngi — Full Stack Developer at PT KINRA. Building digital workflows for an industrial estate." src="https://raw.githubusercontent.com/rzkydell/rzkydell/main/assets/banner-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/data/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rzkydell/rzkydell/data/banner-light.svg">
+  <img alt="Rizky Delianngi — Full Stack Developer at PT KINRA. Building digital workflows for an industrial estate. Live orbit of the projects I committed to in the last 30 days." src="https://raw.githubusercontent.com/rzkydell/rzkydell/main/assets/banner-light.svg" width="100%">
 </picture>
 
 <p align="center">
