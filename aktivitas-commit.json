@@ -1,0 +1,165 @@
+{
+  "diperbarui": "2026-11-21T09:40:35.677Z",
+  "ringkasan": {
+    "tahun": 2026,
+    "jumlah30": 1804,
+    "tahunIni": 2525,
+    "proyekAktif30": 30
+  },
+  "proyek": [
+    {
+      "id": "website",
+      "nama": {
+        "id": "Website & CMS KEK Sei Mangkei",
+        "en": "Sei Mangkei SEZ Website & CMS"
+      },
+      "singkat": {
+        "id": "Website & CMS",
+        "en": "Website & CMS"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-20T09:13:22.000Z",
+      "jumlah30": 304
+    },
+    {
+      "id": "commandcenter",
+      "nama": {
+        "id": "Command Center Direksi",
+        "en": "Executive Command Center"
+      },
+      "singkat": {
+        "id": "Command Center",
+        "en": "Command Center"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-21T01:59:25.000Z",
+      "jumlah30": 266
+    },
+    {
+      "id": "pemasaran",
+      "nama": {
+        "id": "Dashboard Pemasaran & Investasi",
+        "en": "Marketing & Investment Dashboard"
+      },
+      "singkat": {
+        "id": "Pemasaran",
+        "en": "Marketing"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-19T13:05:56.000Z",
+      "jumlah30": 212
+    },
+    {
+      "id": "mke",
+      "nama": {
+        "id": "Dashboard MKE",
+        "en": "MKE Dashboard"
+      },
+      "singkat": {
+        "id": "Dashboard MKE",
+        "en": "MKE Dashboard"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-18T09:14:47.000Z",
+      "jumlah30": 208
+    },
+    {
+      "id": "eoffice",
+      "nama": {
+        "id": "E-Office",
+        "en": "E-Office"
+      },
+      "singkat": {
+        "id": "E-Office",
+        "en": "E-Office"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-18T04:05:04.000Z",
+      "jumlah30": 175
+    },
+    {
+      "id": "sekper",
+      "nama": {
+        "id": "Dashboard Sekretariat",
+        "en": "Secretariat Dashboard"
+      },
+      "singkat": {
+        "id": "Sekretariat",
+        "en": "Secretariat"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-18T04:05:06.000Z",
+      "jumlah30": 108
+    },
+    {
+      "id": "iam",
+      "nama": {
+        "id": "IAM — Manajemen Identitas",
+        "en": "IAM — Identity Management"
+      },
+      "singkat": {
+        "id": "IAM",
+        "en": "IAM"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-20T09:55:08.000Z",
+      "jumlah30": 99
+    },
+    {
+      "id": "privat-3",
+      "nama": {
+        "id": "Proyek privat KINRA",
+        "en": "Private KINRA project"
+      },
+      "singkat": {
+        "id": "Privat",
+        "en": "Private"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-19T08:11:24.000Z",
+      "jumlah30": 87
+    },
+    {
+      "id": "onesei",
+      "nama": {
+        "id": "OneSeiMangkei (SSO)",
+        "en": "OneSeiMangkei (SSO)"
+      },
+      "singkat": {
+        "id": "OneSeiMangkei",
+        "en": "OneSeiMangkei"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-20T09:56:56.000Z",
+      "jumlah30": 86
+    },
+    {
+      "id": "aduan",
+      "nama": {
+        "id": "Portal Aduan TI",
+        "en": "IT Helpdesk Portal"
+      },
+      "singkat": {
+        "id": "Portal Aduan",
+        "en": "IT Helpdesk"
+      },
+      "jenis": "kinra",
+      "url": null,
+      "terakhir": "2026-11-18T01:17:49.000Z",
+      "jumlah30": 79
+    }
+  ],
+  "lainnya": {
+    "jumlah": 21,
+    "jumlah30": 180
+  }
+}
